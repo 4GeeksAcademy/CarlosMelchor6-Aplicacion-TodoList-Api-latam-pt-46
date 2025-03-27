@@ -3,22 +3,33 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
-	const [currentInput, setCurrentInput] = useState("");
+	const [currentInput, setCurrentInput] = useState({ todos: { label: "" } });
 	const [todo, setTodo] = useState([]);
 
 	const API_URL = "https://playground.4geeks.com"
 
+	const handleChange = (event) => {
+		setCurrentInput((prev) => {
+			const list = {
+				...prev,
+				todos: {
+					...prev.todos,
+					label: event.target.value
+				}
+			}
+			return list
+		})
+	}
 
-	const handleChange = (event) => { setCurrentInput(event.target.value) }
 
 	const deleteItem = (currentIndex) => {
 		setTodo(todo.filter((item, index) => index !== currentIndex))
 	}
 
 	const keyPress = (event) => {
-		if (event.key === "Enter" && currentInput.trim() !== "") {
-			setTodo(([...todo, currentInput]))
-			setCurrentInput("")
+		if (event.key === "Enter" && currentInput.todos.label.trim() !== "") {
+			setTodo(([...todo, {label : currentInput.todos.label }]))
+			setCurrentInput({ todos: { label: "" } })
 		}
 	}
 
@@ -49,6 +60,8 @@ const Home = () => {
 	}
 
 
+
+
 	useEffect(() => {
 		getUser()
 	}, [])
@@ -64,8 +77,8 @@ const Home = () => {
 							type="text"
 							id="myInput"
 							placeholder="what needs to be done?"
-							onChange={handleChange}
-							value={currentInput}
+							value={currentInput.todos.label}
+							onChange={handleChange }
 							onKeyDown={keyPress}
 						>
 						</input>
