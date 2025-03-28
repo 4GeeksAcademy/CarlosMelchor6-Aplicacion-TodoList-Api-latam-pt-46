@@ -29,10 +29,6 @@ const Home = () => {
 	}
 
 
-	const handleChange = (event) => {
-		setCurrentInput(event.target.value
-		)
-	}
 
 	const postTodo = async (newTask) => {
 		try {
@@ -56,13 +52,18 @@ const Home = () => {
 			console.log("ERROR: ", error);
 		}
 	}
-
 	const keyPress = async (event) => {
 		if (event.key === "Enter" && currentInput.trim() !== "") {
 			await postTodo(currentInput)
 			setCurrentInput("")
 		}
 	}
+	const handleChange = (event) => {
+		setCurrentInput(event.target.value
+		)
+	}
+
+
 
 	const deletItemApi = async (index) => {
 		const deleteItem = todo[index]
@@ -82,15 +83,17 @@ const Home = () => {
 		}
 	}
 
+
+
 	const addFirstHomework = todo.length === 0
 		? <li id="firstHomework" className="ps-5">Add your first homework</li>
 		: null;
 
 
+		
 	useEffect(() => {
 		getUser()
 	}, [])
-
 	return (
 		<div className="container w-50">
 			<div id="row" className="row d-flex jutify-content-center ">
