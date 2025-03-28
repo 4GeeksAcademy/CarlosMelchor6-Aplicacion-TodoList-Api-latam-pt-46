@@ -8,6 +8,8 @@ const Home = () => {
 
 	const API_URL = "https://playground.4geeks.com"
 
+
+
 	const getUser = async () => {
 		try {
 			const response = await fetch(API_URL + '/todo/users/CarlosMelchor6', {
@@ -29,6 +31,7 @@ const Home = () => {
 	}
 
 
+	
 
 	const postTodo = async (newTask) => {
 		try {
@@ -67,8 +70,8 @@ const Home = () => {
 
 	const deletItemApi = async (index) => {
 		const deleteItem = todo[index]
-		try { 
-			const response = await fetch (API_URL + `/todo/todos/${deleteItem.id}`,{
+		try {
+			const response = await fetch(API_URL + `/todo/todos/${deleteItem.id}`, {
 				method: "DELETE",
 				headers: {
 					"Content-type": "application/json"
@@ -90,7 +93,7 @@ const Home = () => {
 		: null;
 
 
-		
+
 	useEffect(() => {
 		getUser()
 	}, [])
@@ -111,6 +114,7 @@ const Home = () => {
 						>
 						</input>
 					</li>
+					
 					{addFirstHomework}
 
 					{todo.map((task, index) => (
