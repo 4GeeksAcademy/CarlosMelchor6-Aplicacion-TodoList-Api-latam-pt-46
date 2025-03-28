@@ -3,40 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
-	const [currentInput, setCurrentInput] = useState({ todos: { label: "" } });
+	const [currentInput, setCurrentInput] = useState("");
 	const [todo, setTodo] = useState([]);
 
 	const API_URL = "https://playground.4geeks.com"
-
-	const handleChange = (event) => {
-		setCurrentInput((prev) => {
-			const list = {
-				...prev,
-				todos: {
-					...prev.todos,
-					label: event.target.value
-				}
-			}
-			return list
-		})
-	}
-
-
-	const deleteItem = (currentIndex) => {
-		setTodo(todo.filter((item, index) => index !== currentIndex))
-	}
-
-	const keyPress = (event) => {
-		if (event.key === "Enter" && currentInput.todos.label.trim() !== "") {
-			setTodo(([...todo, {label : currentInput.todos.label }]))
-			setCurrentInput({ todos: { label: "" } })
-		}
-	}
-
-	const addFirstHomework = todo.length === 0
-		? <li id="firstHomework" className="ps-5">Add your first homework</li>
-		: null;
-
 
 	const getUser = async () => {
 		try {
@@ -51,8 +21,7 @@ const Home = () => {
 				console.log("Hubo un error, ", response.status);
 			}
 			const body = await response.json()
-			const { todos } = body
-			setTodo(todos)
+			setTodo(body.todos)
 
 		} catch (error) {
 			console.log("Error: ", error);
@@ -60,6 +29,62 @@ const Home = () => {
 	}
 
 
+	const handleChange = (event) => {
+		setCurrentInput(event.target.value
+		)
+	}
+
+	const postTodo = async (newTask) => {
+		try {
+			const response = await fetch(API_URL + '/todo/todos/CarlosMelchor6', {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					label: newTask,
+					is_done: false,
+				})
+			})
+			if (response.status !== 201) {
+				console.log("Hubo un error: ", response.status);
+				return null
+			}
+			const body = await response.json()
+			setTodo((prev) => [...prev, body])
+		} catch (error) {
+			console.log("ERROR: ", error);
+		}
+	}
+
+	const keyPress = async (event) => {
+		if (event.key === "Enter" && currentInput.trim() !== "") {
+			await postTodo(currentInput)
+			setCurrentInput("")
+		}
+	}
+
+	const deletItemApi = async (index) => {
+		const deleteItem = todo[index]
+		try { 
+			const response = await fetch (API_URL + `/todo/todos/${deleteItem.id}`,{
+				method: "DELETE",
+				headers: {
+					"Content-type": "application/json"
+				},
+			})
+			if (response.status !== 204) {
+				console.log("Hubo un error: ", response.status);
+			}
+			setTodo(todo.filter((_, i) => i !== index))
+		} catch (error) {
+			console.log("ERROR: ", error);
+		}
+	}
+
+	const addFirstHomework = todo.length === 0
+		? <li id="firstHomework" className="ps-5">Add your first homework</li>
+		: null;
 
 
 	useEffect(() => {
@@ -77,23 +102,23 @@ const Home = () => {
 							type="text"
 							id="myInput"
 							placeholder="what needs to be done?"
-							value={currentInput.todos.label}
-							onChange={handleChange }
+							value={currentInput}
+							onChange={handleChange}
 							onKeyDown={keyPress}
 						>
 						</input>
 					</li>
 					{addFirstHomework}
 
-					{todo.map((todos, index) => (
+					{todo.map((task, index) => (
 						<li
 							className="ps-5 pe-3 d-flex justify-content-between align-items-center"
 							key={index}
 						>
-							{todos.label}
+							{task.label}
 							<FontAwesomeIcon
 								id="icon"
-								onClick={() => deleteItem(index)}
+								onClick={() => deletItemApi(index)}
 								icon={faX}
 							/>
 						</li>
