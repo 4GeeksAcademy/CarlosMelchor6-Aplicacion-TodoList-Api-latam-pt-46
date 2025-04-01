@@ -10,21 +10,48 @@ const Home = () => {
 
 	const API_URL = "https://playground.4geeks.com"
 
+	const myUser = "CarlosMelchor6"
+
 	const getUser = async () => {
 		try {
 			const response = await fetch(API_URL + '/todo/users/CarlosMelchor6', {
 				method: "GET",
 				headers: {
-					"Content-type": "Application/json"
+					"Content-type": "application/json"
 				},
 			})
-
+			if (response.status === 404) {
+				console.log("Usuario no encontrado");
+				return null
+			}
 			if (response.status !== 200) {
-				console.log("Hubo un error, ", response.status);
+				console.error("Hubo un error, ", response.status);
+				return null
 			}
 			const body = await response.json()
 			setTodo(body.todos)
+			return body
 
+		} catch (error) {
+			console.error("Error: ", error);
+			return null
+		}
+	}
+	const createUser = async () => {
+		try {
+			const response = await fetch(API_URL + `/todo/users/${myUser}`, {
+				method: "POST",
+				headers: {
+					"Content-type": "application/json"
+				},
+				body: JSON.stringify({ name: myUser })
+			})
+			const data = await response.json();
+			if (response.status !== 201) {
+				console.log("Hubo un error, ", response.status, data)
+			} else {
+				console.log("Usuario creado con exito");
+			}
 		} catch (error) {
 			console.error("Error: ", error);
 		}
@@ -84,7 +111,19 @@ const Home = () => {
 		: null;
 
 	useEffect(() => {
-		getUser()
+		const initializeUser = async () => {
+
+			try {
+				const user = await getUser()
+				if (!user) {
+					await createUser()
+				}
+			} catch (error) {
+				console.error("Hubo un error al crear inicializar el usuario, ", error)
+			}
+		}
+
+		initializeUser()
 	}, [])
 
 	return (
