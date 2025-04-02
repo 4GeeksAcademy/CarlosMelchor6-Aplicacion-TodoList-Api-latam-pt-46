@@ -26,6 +26,8 @@ li {
     border: 1px solid rgb(196, 193, 193);
     color: rgb(121, 121, 121);
     padding-left: 20px;
+    display: flex;
+    justify-content: space-between;
 }
 
 #icon {

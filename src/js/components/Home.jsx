@@ -9,12 +9,11 @@ const Home = () => {
 	const [todo, setTodo] = useState([]);
 
 	const API_URL = "https://playground.4geeks.com"
-
 	const myUser = "CarlosMelchor6"
 
 	const getUser = async () => {
 		try {
-			const response = await fetch(API_URL + '/todo/users/CarlosMelchor6', {
+			const response = await fetch(API_URL + `/todo/users/${myUser}`, {
 				method: "GET",
 				headers: {
 					"Content-type": "application/json"
@@ -56,9 +55,29 @@ const Home = () => {
 			console.error("Error: ", error);
 		}
 	}
+	const deleteUser = async () => {
+		try {
+			const response = await fetch(API_URL + `/todo/users/${myUser}`, {
+				method: "DELETE",
+				headers: {
+					"Content-type": "application/json"
+				},
+				body: JSON.stringify({ name: myUser })
+			})
+			const data = await response.json();
+			if (response.status !== 200) {
+				console.log("Hubo un error, ", response.status, data)
+			} else {
+				console.log("Usuario eliminado con exito");
+				setTodo([])
+			}
+		} catch (error) {
+			console.error("Error, ", error);
+		}
+	}
 	const postTodo = async (newTask) => {
 		try {
-			const response = await fetch(API_URL + '/todo/todos/CarlosMelchor6', {
+			const response = await fetch(API_URL + `/todo/todos/${myUser}`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json"
@@ -85,8 +104,7 @@ const Home = () => {
 		}
 	}
 	const handleChange = (event) => {
-		setCurrentInput(event.target.value
-		)
+		setCurrentInput(event.target.value)
 	}
 	const deletItemApi = async (index) => {
 		const deleteItem = todo[index]
@@ -100,7 +118,7 @@ const Home = () => {
 			if (response.status !== 204) {
 				console.log("Hubo un error: ", response.status);
 			}
-			setTodo(todo.filter((_, i) => i !== index))
+			setTodo((prev) => prev.filter((_, i) => i !== index))
 		} catch (error) {
 			console.error("ERROR: ", error);
 		}
@@ -112,7 +130,6 @@ const Home = () => {
 
 	useEffect(() => {
 		const initializeUser = async () => {
-
 			try {
 				const user = await getUser()
 				if (!user) {
@@ -122,7 +139,6 @@ const Home = () => {
 				console.error("Hubo un error al crear inicializar el usuario, ", error)
 			}
 		}
-
 		initializeUser()
 	}, [])
 
@@ -146,10 +162,20 @@ const Home = () => {
 						FontAwesomeIcon={FontAwesomeIcon}
 						faX={faX}
 					/>
-					<div id="counterList">{todo.length} items in the list</div>
+					<div id="counterList">
+						{todo.length} items in the list
+						<button
+							type="button"
+							className="btn btn-light btn-sm"
+							onClick={deleteUser}
+						>
+							Eliminar Lista
+						</button>
+					</div>
 				</ul>
 			</div>
 		</div>
 	);
 };
 export default Home;
+
