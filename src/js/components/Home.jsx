@@ -20,20 +20,20 @@ const Home = () => {
 				},
 			})
 			if (response.status === 404) {
-				console.log("Usuario no encontrado");
-				return null
+				console.log("Usuario no encontrado, creando uno nuevo");
+				await createUser()
+				return;
 			}
-			if (response.status !== 200) {
+			if (!response.ok) {
 				console.error("Hubo un error, ", response.status);
-				return null
+				return;
 			}
-			const body = await response.json()
-			setTodo(body.todos)
-			return body
+
+			const data = await response.json()
+			setTodo(data.todos || []);
 
 		} catch (error) {
-			console.error("Error: ", error);
-			return null
+			console.error("Error al obtener el usuario: ", error);
 		}
 	}
 	const createUser = async () => {
@@ -45,16 +45,19 @@ const Home = () => {
 				},
 				body: JSON.stringify({ name: myUser })
 			})
-			const data = await response.json();
+
 			if (response.status !== 201) {
-				console.log("Hubo un error, ", response.status, data)
-			} else {
-				console.log("Usuario creado con exito");
-			}
+				console.log("Hubo un error al crear el usuario: ", response.status)
+				return
+			} 
+			console.log("Usuario creado con éxito");
+			await getUser();
+			
 		} catch (error) {
 			console.error("Error: ", error);
 		}
 	}
+
 	const deleteUser = async () => {
 		try {
 			const response = await fetch(API_URL + `/todo/users/${myUser}`, {
@@ -62,15 +65,16 @@ const Home = () => {
 				headers: {
 					"Content-type": "application/json"
 				},
-				body: JSON.stringify({ name: myUser })
 			})
-			const data = await response.json();
-			if (response.status !== 200) {
-				console.log("Hubo un error, ", response.status, data)
-			} else {
-				console.log("Usuario eliminado con exito");
-				setTodo([])
-			}
+
+			if (!response.ok) {
+				console.log("Error al eliminar el usuario: ", response.status)
+				return;
+			} 
+
+			console.log("Usuario eliminado con éxito");
+			await createUser()
+			
 		} catch (error) {
 			console.error("Error, ", error);
 		}
@@ -88,11 +92,12 @@ const Home = () => {
 				})
 			})
 			if (response.status !== 201) {
-				console.log("Hubo un error: ", response.status);
-				return null
+				console.log("Error al agregar tarea: ", response.status);
+				return;
 			}
-			const body = await response.json()
-			setTodo((prev) => [...prev, body])
+
+			await getUser();
+			
 		} catch (error) {
 			console.error("ERROR: ", error);
 		}
@@ -118,7 +123,9 @@ const Home = () => {
 			if (response.status !== 204) {
 				console.log("Hubo un error: ", response.status);
 			}
-			setTodo((prev) => prev.filter((_, i) => i !== index))
+
+			await getUser();
+
 		} catch (error) {
 			console.error("ERROR: ", error);
 		}
@@ -129,17 +136,7 @@ const Home = () => {
 		: null;
 
 	useEffect(() => {
-		const initializeUser = async () => {
-			try {
-				const user = await getUser()
-				if (!user) {
-					await createUser()
-				}
-			} catch (error) {
-				console.error("Hubo un error al crear inicializar el usuario, ", error)
-			}
-		}
-		initializeUser()
+		getUser()
 	}, [])
 
 	return (
@@ -169,7 +166,7 @@ const Home = () => {
 							className="btn btn-light btn-sm"
 							onClick={deleteUser}
 						>
-							Eliminar Lista
+							Eliminar Todas las Tareas
 						</button>
 					</div>
 				</ul>

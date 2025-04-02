@@ -10,7 +10,7 @@ export const ListOfTask = (props) => {
             {todo.map((task, index) => (
                 <li
                     className="ps-5 pe-3 d-flex justify-content-between align-items-center"
-                    key={index}
+                    key={task.id }
                 >
                     {task.label}
                     <FontAwesomeIcon
